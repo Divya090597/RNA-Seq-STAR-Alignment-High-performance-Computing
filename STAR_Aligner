@@ -23,7 +23,8 @@ mkdir -p rnaseq/raw_data
 mkdir -p rnaseq/results
 mkdir -p rnaseq/scripts
 
-# Download fastq files
+
+# Download fastq files ( RNA-Seq of Homo sapiens: adult female pancreas (SRR31243301) )
 fastq-dump --split-files --gzip SRR31243301
 
 # Download reference genome
