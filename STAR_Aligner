@@ -1,3 +1,8 @@
+source ~/.bashrc
+conda activate practice_environment
+cd mapping
+ls
+
 # start an interactive session with 6 cores
 srun --pty -p red -t 0-12:00 -c 6 --mem 8G /bin/bash
 
@@ -15,9 +20,65 @@ mkdir -p rnaseq/scripts
 fastq-dump --split-files --gzip SRR31243301
 
 # Download reference genome
-wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/GCF_000001405.40_GRCh38.p14_genomic.gtf.gz -O Ensemble.gtf
+wget https://ftp.ensembl.org/pub/release-113/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz -O Ensemble.fa.gz
+wget https://ftp.ensembl.org/pub/release-113/gtf/homo_sapiens/Homo_sapiens.GRCh38.113.gtf.gz -O Ensemble.gtf.gz -O Ensemble.gtf.gz
+
+# Move fasta and gtf files to ref folder
+mv Ensemble.fa.gz rnaseq/ref/
+mv Ensemble.gtf.gz rnaseq/ref/
+
+gunzip rnaseq/ref/*.gz
 
 # Move FASTQ Files to the raw_data Folder
 mv SRR31243301_1.fastq.gz rnaseq/raw_data
 mv SRR31243301_2.fastq.gz rnaseq/raw_data
 
+# Genome indexing
+STAR --runThreadN 1 \
+     --runMode genomeGenerate \
+     --genomeDir rnaseq/ref/ \
+     --genomeFastaFiles rnaseq/ref/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa \
+     --sjdbGTFfile rnaseq/ref/Homo_sapiens.GRCh38.113.gtf \
+     --sjdbOverhang 99
+
+# Aligning reads
+ALL_READ1="rnaseq/raw_data/SRR31243301_1.fastq.gz"
+ALL_READ2="rnaseq/raw_data/SRR31243301_2.fastq.gz"
+
+STAR --readFilesIn ${ALL_READ1} ${ALL_READ2} \
+     --runThreadN 1 \
+     --genomeDir rnaseq/ref/ \
+     --outFilterType BySJout \
+     --outFilterMultimapNmax 20 \
+     --alignSJoverhangMin 8 \
+     --alignSJstitchMismatchNmax 5 -1 5 5 \
+     --alignSJDBoverhangMin 10 \
+     --outFilterMismatchNmax 999 \
+     --outFilterMismatchNoverReadLmax 0.04 \
+     --alignIntronMin 20 \
+     --alignIntronMax 100000 \
+     --alignMatesGapMax 100000 \
+     --genomeLoad NoSharedMemory \
+     --outFileNamePrefix ${OUTPUT_PREFIX}. \
+     --outSAMmapqUnique 60 \
+     --outSAMmultNmax 1 \
+     --outSAMstrandField intronMotif \
+     --outSAMtype BAM SortedByCoordinate \
+     --outReadsUnmapped None \
+     --outSAMattrRGline ID:${RG_ID} LB:${RG_LB} PL:${RG_PL} SM:${RG_SM} PU:${RG_PU} \
+     --chimSegmentMin 12 \
+     --chimJunctionOverhangMin 12 \
+     --chimSegmentReadGapMax 3 \
+     --chimMultimapNmax 10 \
+     --chimMultimapScoreRange 10 \
+     --chimNonchimScoreDropMin 10 \
+     --chimOutJunctionFormat 1 \
+     --quantMode TranscriptomeSAM GeneCounts \
+     --twopassMode Basic \
+     --peOverlapNbasesMin 12 \
+     --peOverlapMMp 0.1 \
+     --outWigType wiggle \
+     --outWigStrand Stranded \
+     --outWigNorm RPM \
+     --limitBAMsortRAM 160000000000 \
+     --outSAMunmapped Within
