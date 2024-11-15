@@ -1,0 +1,23 @@
+# start an interactive session with 6 cores
+srun --pty -p red -t 0-12:00 -c 6 --mem 8G /bin/bash
+
+# Create the main directory
+mkdir -p rnaseq
+
+# Create subdirectories
+mkdir -p rnaseq/logs
+mkdir -p rnaseq/meta
+mkdir -p rnaseq/raw_data
+mkdir -p rnaseq/results
+mkdir -p rnaseq/scripts
+
+# Download fastq files
+fastq-dump --split-files --gzip SRR31243301
+
+# Download reference genome
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/GCF_000001405.40_GRCh38.p14_genomic.gtf.gz -O Ensemble.gtf
+
+# Move FASTQ Files to the raw_data Folder
+mv SRR31243301_1.fastq.gz rnaseq/raw_data
+mv SRR31243301_2.fastq.gz rnaseq/raw_data
+
