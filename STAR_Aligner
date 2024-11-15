@@ -1,4 +1,11 @@
+# Prepare the environment
 source ~/.bashrc
+conda --version
+conda config --env --add channels bioconda
+conda config --env --add channels conda-forge
+conda install fastqc
+conda install -c bioconda sra-tools
+
 conda activate practice_environment
 cd mapping
 ls
