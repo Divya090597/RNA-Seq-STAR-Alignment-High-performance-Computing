@@ -1,5 +1,6 @@
 # RNA-Seq-STAR-Alignment-High-performance-Computing
-* Spliced Transcripts Alignment to a Reference*
+** Spliced Transcripts Alignment to a Reference**
+  
   longest mathcing sequences = Maximal Mappable Prefixes (MMPs)
 
   The different parts of the reads that are mapped seperately = "seeds"
