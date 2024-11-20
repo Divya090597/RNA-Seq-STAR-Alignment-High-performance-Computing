@@ -41,6 +41,10 @@ gunzip rnaseq/ref/*.gz
 mv SRR31243301_1.fastq.gz rnaseq/raw_data
 mv SRR31243301_2.fastq.gz rnaseq/raw_data
 
+# Verify the content
+zcat rnaseq/raw_data/SRR31243301_1.fastq.gz | head -n 8
+zcat rnaseq/raw_data/SRR31243301_2.fastq.gz | head -n 8
+
 # Genome indexing
 STAR --runThreadN 48 \
      --runMode genomeGenerate \
@@ -55,14 +59,15 @@ STAR --runThreadN 48 \
 ALL_READ1="rnaseq/raw_data/SRR31243301_1.fastq.gz"
 ALL_READ2="rnaseq/raw_data/SRR31243301_2.fastq.gz"
 OUTPUT_PREFIX="rnaseq/results/sample"
-RG_ID="sample"
-RG_LB="lib1"
+RG_ID="sampleID"
+RG_LB="libraryID"
 RG_PL="ILLUMINA"
-RG_SM="sample"
-RG_PU="unit1"
+RG_SM="sampleName"
+RG_PU="unitID"
 
 STAR --readFilesIn ${ALL_READ1} ${ALL_READ2} \
-     --runThreadN 6 \
+     --readFilesCommand zcat \     
+     --runThreadN 20 \
      --genomeDir rnaseq/results/ \
      --outFilterType BySJout \
      --outFilterMultimapNmax 20 \
@@ -98,3 +103,5 @@ STAR --readFilesIn ${ALL_READ1} ${ALL_READ2} \
      --outWigNorm RPM \
      --limitBAMsortRAM 160000000000 \
      --outSAMunmapped Within
+
+ls -lh rnaseq/results
