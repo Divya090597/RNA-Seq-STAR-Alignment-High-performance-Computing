@@ -42,20 +42,28 @@ mv SRR31243301_1.fastq.gz rnaseq/raw_data
 mv SRR31243301_2.fastq.gz rnaseq/raw_data
 
 # Genome indexing
-STAR --runThreadN 1 \
+STAR --runThreadN 48 \
      --runMode genomeGenerate \
-     --genomeDir rnaseq/ref/ \
+     --genomeDir rnaseq/results/ \
      --genomeFastaFiles rnaseq/ref/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa \
      --sjdbGTFfile rnaseq/ref/Homo_sapiens.GRCh38.113.gtf \
-     --sjdbOverhang 99
+     --sjdbOverhang 99 \
+     --limitGenomeGenerateRAM 161061273600
 
 # Aligning reads
+
 ALL_READ1="rnaseq/raw_data/SRR31243301_1.fastq.gz"
 ALL_READ2="rnaseq/raw_data/SRR31243301_2.fastq.gz"
+OUTPUT_PREFIX="rnaseq/results/sample"
+RG_ID="sample"
+RG_LB="lib1"
+RG_PL="ILLUMINA"
+RG_SM="sample"
+RG_PU="unit1"
 
 STAR --readFilesIn ${ALL_READ1} ${ALL_READ2} \
-     --runThreadN 1 \
-     --genomeDir rnaseq/ref/ \
+     --runThreadN 6 \
+     --genomeDir rnaseq/results/ \
      --outFilterType BySJout \
      --outFilterMultimapNmax 20 \
      --alignSJoverhangMin 8 \
