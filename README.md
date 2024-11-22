@@ -10,4 +10,4 @@ FASTQ FILES:
 RNA-Seq of Homo sapiens: adult female pancreas (SRR31243301)
 
 FASTA and GTF FILES : https://useast.ensembl.org/Homo_sapiens/Info/Index
-https://genome.ucsc.edu/cgi-bin/hgBlat
+Blat : https://genome.ucsc.edu/cgi-bin/hgBlat
