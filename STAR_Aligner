@@ -9,7 +9,7 @@ conda install -c bioconda bedtools samtools
 
 conda activate practice_environment
 cd mapping
-ls
+ls3
 
 # start an interactive session with 6 cores
 srun --pty -p red -t 0-12:00 -c 6 --mem 8G /bin/bash
@@ -22,6 +22,7 @@ mkdir -p rnaseq/logs
 mkdir -p rnaseq/meta
 mkdir -p rnaseq/raw_data
 mkdir -p rnaseq/results
+mkdir -p rnaseq/31377901_results
 mkdir -p rnaseq/scripts
 
 
