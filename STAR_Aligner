@@ -5,6 +5,7 @@ conda config --env --add channels bioconda
 conda config --env --add channels conda-forge
 conda install fastqc
 conda install -c bioconda sra-tools
+conda install -c bioconda bedtools samtools
 
 conda activate practice_environment
 cd mapping
@@ -105,3 +106,20 @@ STAR --readFilesIn ${ALL_READ1} ${ALL_READ2} \
      --outSAMunmapped Within
 
 ls -lh rnaseq/results
+
+# Index the bam file
+samtools index rnaseq/31377901_results/sample.Aligned.sortedByCoord.out.bam
+
+# Prepare the environment to tranfer the file from the environment to the local system
+pwd
+logout
+C:\WINDOWS\system##>cd ../
+C:\Windows>dir
+C:\Windows>cd ../
+C:\>dir
+C:\>cd Users/8#######/
+C:\Users\8#######>dir
+C:\Users\8#######>cd Downloads
+C:\Users\8#######\Downloads>cd BamFiles
+C:\Users\8#######\Downloads\test>scp 8#######@red3:/home/8#######/mapping/rnaseq/31377901_results/sample.Aligned.sortedByCoord.out.bam.bai 31377901.bam.bai
+C:\Users\8#######\Downloads\test>scp 8#######@red3:/home/8#######/mapping/rnaseq/31377901_results/sample.Aligned.sortedByCoord.out.bam 31377901.bam
