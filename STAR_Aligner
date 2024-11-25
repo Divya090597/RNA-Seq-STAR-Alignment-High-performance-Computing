@@ -1,119 +1,119 @@
 # Prepare the environment
-source ~/.bashrc
-conda --version
-conda config --env --add channels bioconda
-conda config --env --add channels conda-forge
-conda install fastqc
-conda install -c bioconda sra-tools
-conda install -c bioconda bedtools samtools
+$ source ~/.bashrc
+$ conda --version
+$ conda config --env --add channels bioconda
+$ conda config --env --add channels conda-forge
+$ conda install fastqc
+$ conda install -c bioconda sra-tools
+$ conda install -c bioconda bedtools samtools
 
-conda activate practice_environment
-cd mapping
-ls3
+$ conda activate practice_environment
+$ cd mapping
+$ ls
 
 # start an interactive session with 6 cores
-srun --pty -p red -t 0-12:00 -c 6 --mem 8G /bin/bash
+$ srun --pty -p red -t 0-12:00 -c 6 --mem 8G /bin/bash
 
 # Create the main directory
-mkdir -p rnaseq
+$ mkdir -p rnaseq
 
 # Create subdirectories
-mkdir -p rnaseq/logs
-mkdir -p rnaseq/meta
-mkdir -p rnaseq/raw_data
-mkdir -p rnaseq/results
-mkdir -p rnaseq/31377901_results
-mkdir -p rnaseq/scripts
+$ mkdir -p rnaseq/logs
+$ mkdir -p rnaseq/meta
+$ mkdir -p rnaseq/raw_data
+$ mkdir -p rnaseq/results
+$ mkdir -p rnaseq/31377901_results
+$ mkdir -p rnaseq/scripts
 
 
 # Download fastq files 
-fastq-dump --split-files --gzip SRR31377901
+$ fastq-dump --split-files --gzip SRR31377901
 
 # Download reference genome
-wget https://ftp.ensembl.org/pub/release-113/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz -O Ensemble.fa.gz
-wget https://ftp.ensembl.org/pub/release-113/gtf/homo_sapiens/Homo_sapiens.GRCh38.113.gtf.gz -O Ensemble.gtf.gz -O Ensemble.gtf.gz
+$ wget https://ftp.ensembl.org/pub/release-113/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz -O Ensemble.fa.gz
+$ wget https://ftp.ensembl.org/pub/release-113/gtf/homo_sapiens/Homo_sapiens.GRCh38.113.gtf.gz -O Ensemble.gtf.gz -O Ensemble.gtf.gz
 
 # Move fasta and gtf files to ref folder
-mv Ensemble.fa.gz rnaseq/ref/
-mv Ensemble.gtf.gz rnaseq/ref/
+$ mv Ensemble.fa.gz rnaseq/ref/
+$ mv Ensemble.gtf.gz rnaseq/ref/
 
-gunzip rnaseq/ref/*.gz
+$ gunzip rnaseq/ref/*.gz
 
 # Move FASTQ Files to the raw_data Folder
-mv SRR31377901_1.fastq.gz rnaseq/raw_data
-mv SRR31377901_2.fastq.gz rnaseq/raw_data
+$ mv SRR31377901_1.fastq.gz rnaseq/raw_data
+$ mv SRR31377901_2.fastq.gz rnaseq/raw_data
 
 # Verify the content
-zcat rnaseq/raw_data/SRR31377901_1.fastq.gz | head -n 8
-zcat rnaseq/raw_data/SRR31377901_2.fastq.gz | head -n 8
+$ zcat rnaseq/raw_data/SRR31377901_1.fastq.gz | head -n 8
+$ zcat rnaseq/raw_data/SRR31377901_2.fastq.gz | head -n 8
 
 # Genome indexing
-STAR --runThreadN 48 \
-     --runMode genomeGenerate \
-     --genomeDir rnaseq/results/ \
-     --genomeFastaFiles rnaseq/ref/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa \
-     --sjdbGTFfile rnaseq/ref/Homo_sapiens.GRCh38.113.gtf \
-     --sjdbOverhang 99 \
-     --limitGenomeGenerateRAM 161061273600
+$ STAR --runThreadN 48 \
+       --runMode genomeGenerate \
+       --genomeDir rnaseq/results/ \
+       --genomeFastaFiles rnaseq/ref/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa \
+       --sjdbGTFfile rnaseq/ref/Homo_sapiens.GRCh38.113.gtf \
+       --sjdbOverhang 99 \
+       --limitGenomeGenerateRAM 161061273600
 
 # Aligning reads
 
-ALL_READ1="rnaseq/raw_data/SRR31377901_1.fastq.gz"
-ALL_READ2="rnaseq/raw_data/SRR31377901_2.fastq.gz"
-OUTPUT_PREFIX="rnaseq/results/sample"
-RG_ID="sampleID"
-RG_LB="libraryID"
-RG_PL="ILLUMINA"
-RG_SM="sampleName"
-RG_PU="unitID"
+$ ALL_READ1="rnaseq/raw_data/SRR31377901_1.fastq.gz"
+$ ALL_READ2="rnaseq/raw_data/SRR31377901_2.fastq.gz"
+$ OUTPUT_PREFIX="rnaseq/results/sample"
+$ RG_ID="sampleID"
+$ RG_LB="libraryID"
+$ RG_PL="ILLUMINA"
+$ RG_SM="sampleName"
+$ RG_PU="unitID"
 
-STAR --readFilesIn ${ALL_READ1} ${ALL_READ2} \
-     --readFilesCommand zcat \     
-     --runThreadN 20 \
-     --genomeDir rnaseq/results/ \
-     --outFilterType BySJout \
-     --outFilterMultimapNmax 20 \
-     --alignSJoverhangMin 8 \
-     --alignSJstitchMismatchNmax 5 -1 5 5 \
-     --alignSJDBoverhangMin 10 \
-     --outFilterMismatchNmax 999 \
-     --outFilterMismatchNoverReadLmax 0.04 \
-     --alignIntronMin 20 \
-     --alignIntronMax 100000 \
-     --alignMatesGapMax 100000 \
-     --genomeLoad NoSharedMemory \
-     --outFileNamePrefix ${OUTPUT_PREFIX}. \
-     --outSAMmapqUnique 60 \
-     --outSAMmultNmax 1 \
-     --outSAMstrandField intronMotif \
-     --outSAMtype BAM SortedByCoordinate \
-     --outReadsUnmapped None \
-     --outSAMattrRGline ID:${RG_ID} LB:${RG_LB} PL:${RG_PL} SM:${RG_SM} PU:${RG_PU} \
-     --chimSegmentMin 12 \
-     --chimJunctionOverhangMin 12 \
-     --chimSegmentReadGapMax 3 \
-     --chimMultimapNmax 10 \
-     --chimMultimapScoreRange 10 \
-     --chimNonchimScoreDropMin 10 \
-     --chimOutJunctionFormat 1 \
-     --quantMode TranscriptomeSAM GeneCounts \
-     --twopassMode Basic \
-     --peOverlapNbasesMin 12 \
-     --peOverlapMMp 0.1 \
-     --outWigType wiggle \
-     --outWigStrand Stranded \
-     --outWigNorm RPM \
-     --limitBAMsortRAM 160000000000 \
-     --outSAMunmapped Within
+$ STAR --readFilesIn ${ALL_READ1} ${ALL_READ2} \
+       --readFilesCommand zcat \     
+       --runThreadN 20 \
+       --genomeDir rnaseq/results/ \
+       --outFilterType BySJout \
+       --outFilterMultimapNmax 20 \
+       --alignSJoverhangMin 8 \
+       --alignSJstitchMismatchNmax 5 -1 5 5 \
+       --alignSJDBoverhangMin 10 \
+       --outFilterMismatchNmax 999 \
+       --outFilterMismatchNoverReadLmax 0.04 \
+       --alignIntronMin 20 \
+       --alignIntronMax 100000 \
+       --alignMatesGapMax 100000 \
+       --genomeLoad NoSharedMemory \
+       --outFileNamePrefix ${OUTPUT_PREFIX}. \
+       --outSAMmapqUnique 60 \
+       --outSAMmultNmax 1 \
+       --outSAMstrandField intronMotif \
+       --outSAMtype BAM SortedByCoordinate \
+       --outReadsUnmapped None \
+       --outSAMattrRGline ID:${RG_ID} LB:${RG_LB} PL:${RG_PL} SM:${RG_SM} PU:${RG_PU} \
+       --chimSegmentMin 12 \
+       --chimJunctionOverhangMin 12 \
+       --chimSegmentReadGapMax 3 \
+       --chimMultimapNmax 10 \
+       --chimMultimapScoreRange 10 \
+       --chimNonchimScoreDropMin 10 \
+       --chimOutJunctionFormat 1 \
+       --quantMode TranscriptomeSAM GeneCounts \
+       --twopassMode Basic \
+       --peOverlapNbasesMin 12 \
+       --peOverlapMMp 0.1 \
+       --outWigType wiggle \
+       --outWigStrand Stranded \
+       --outWigNorm RPM \
+       --limitBAMsortRAM 160000000000 \
+       --outSAMunmapped Within
 
-ls -lh rnaseq/results
+$ ls -lh rnaseq/results
 
 # Index the bam file
-samtools index rnaseq/31377901_results/sample.Aligned.sortedByCoord.out.bam
+$ samtools index rnaseq/31377901_results/sample.Aligned.sortedByCoord.out.bam
 
 # Prepare the environment to tranfer the file from the environment to the local system
-pwd
-logout
+$ pwd
+$ logout
 C:\WINDOWS\system##>cd ../
 C:\Windows>dir
 C:\Windows>cd ../
