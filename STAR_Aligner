@@ -26,8 +26,8 @@ mkdir -p rnaseq/31377901_results
 mkdir -p rnaseq/scripts
 
 
-# Download fastq files ( RNA-Seq of Homo sapiens: adult female pancreas (SRR31243301) )
-fastq-dump --split-files --gzip SRR31243301
+# Download fastq files 
+fastq-dump --split-files --gzip SRR31377901
 
 # Download reference genome
 wget https://ftp.ensembl.org/pub/release-113/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz -O Ensemble.fa.gz
@@ -40,12 +40,12 @@ mv Ensemble.gtf.gz rnaseq/ref/
 gunzip rnaseq/ref/*.gz
 
 # Move FASTQ Files to the raw_data Folder
-mv SRR31243301_1.fastq.gz rnaseq/raw_data
-mv SRR31243301_2.fastq.gz rnaseq/raw_data
+mv SRR31377901_1.fastq.gz rnaseq/raw_data
+mv SRR31377901_2.fastq.gz rnaseq/raw_data
 
 # Verify the content
-zcat rnaseq/raw_data/SRR31243301_1.fastq.gz | head -n 8
-zcat rnaseq/raw_data/SRR31243301_2.fastq.gz | head -n 8
+zcat rnaseq/raw_data/SRR31377901_1.fastq.gz | head -n 8
+zcat rnaseq/raw_data/SRR31377901_2.fastq.gz | head -n 8
 
 # Genome indexing
 STAR --runThreadN 48 \
@@ -58,8 +58,8 @@ STAR --runThreadN 48 \
 
 # Aligning reads
 
-ALL_READ1="rnaseq/raw_data/SRR31243301_1.fastq.gz"
-ALL_READ2="rnaseq/raw_data/SRR31243301_2.fastq.gz"
+ALL_READ1="rnaseq/raw_data/SRR31377901_1.fastq.gz"
+ALL_READ2="rnaseq/raw_data/SRR31377901_2.fastq.gz"
 OUTPUT_PREFIX="rnaseq/results/sample"
 RG_ID="sampleID"
 RG_LB="libraryID"
