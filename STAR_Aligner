@@ -124,3 +124,12 @@ C:\Users\8#######>cd Downloads
 C:\Users\8#######\Downloads>cd BamFiles
 C:\Users\8#######\Downloads\test>scp 8#######@red3:/home/8#######/mapping/rnaseq/31377901_results/sample.Aligned.sortedByCoord.out.bam.bai 31377901.bam.bai
 C:\Users\8#######\Downloads\test>scp 8#######@red3:/home/8#######/mapping/rnaseq/31377901_results/sample.Aligned.sortedByCoord.out.bam 31377901.bam
+
+# The latest python version which is 3.13 doesn't support the deeptools installation #
+
+$ conda install python=3.10
+$ conda install -c bioconda deeptools pysam
+
+$ bamCoverage -b sample.Aligned.sortedByCoord.out.bam \
+>             -o sample.Aligned.sortedByCoord.out.bw \
+>             --normalizeUsing RPKM 
