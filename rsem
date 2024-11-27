@@ -1,0 +1,6 @@
+ rsem-prepare-reference --gtf ref/Homo_sapiens.GRCh38.113.gtf \
+>     --star \
+>     -p 20 \
+>     ref/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa \
+>     ref/human_rsem
+
