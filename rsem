@@ -4,6 +4,8 @@
 >     ref/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa \
 >     ref/human_rsem
 
+rsem-tbam2gbam ref/human_rsem output/sample_expression.transcript.bam output/sample_expression.genome.bam
+
 samtools view output/sample_expression.transcript.bam | less
 
 rsem-sam-validator output/sample_expression.transcript.bam
