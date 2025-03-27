@@ -1,5 +1,5 @@
 # RNA-Seq-STAR-Alignment-High-performance-Computing
-##Spliced Transcripts Alignment to a Reference##
+**Spliced Transcripts Alignment to a Reference**
   
   longest mathcing sequences = Maximal Mappable Prefixes (MMPs)
 
